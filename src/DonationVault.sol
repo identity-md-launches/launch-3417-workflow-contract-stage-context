@@ -12,7 +12,10 @@ interface IDonationToken {
 /// @notice Anyone can donate tokens as a gift; anyone other than the donor can claim a gift once.
 ///         Donors earn nontransferable points equal to the base units the vault received
 ///         (1e18 point units = 1 point = 1 whole token for an 18-decimal token).
-///         Tokens sent directly to the vault (not via donate) earn no points and create no gift.
+///         Points count gross donations, persist after payout, and can be farmed with a second wallet.
+///         They do not prove net giving and must not be used for allocations or rewards.
+///         Tokens sent directly to the vault (not via donate) earn no points, create no gift,
+///         and are permanently locked: there is no recovery or withdrawal function.
 contract DonationVault {
     struct Gift {
         address donor;
@@ -71,7 +74,8 @@ contract DonationVault {
         emit Donated(giftId, msg.sender, received);
     }
 
-    /// @notice Claim the entire gift `giftId`. The donor cannot claim their own gift.
+    /// @notice Claim the entire gift `giftId`. Only the donor address itself is excluded.
+    /// @dev Another wallet controlled by the donor is eligible; this is not an identity check.
     function claim(uint256 giftId) external nonReentrant returns (uint256 amount) {
         Gift storage g = _gifts[giftId];
         if (g.donor == address(0)) revert UnknownGift(giftId);
@@ -108,7 +112,8 @@ contract DonationVault {
         return (g.donor, g.amount, g.claimed);
     }
 
-    /// @notice Donor points of `account`, in token base units donated (nontransferable).
+    /// @notice Gross donor points of `account`, in token base units donated (nontransferable).
+    /// @dev Points persist after payout, including a claim by another wallet controlled by the donor.
     function points(address account) external view returns (uint256) {
         return _points[account];
     }
