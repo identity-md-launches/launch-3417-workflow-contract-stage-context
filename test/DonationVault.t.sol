@@ -256,8 +256,11 @@ contract DonationVaultTest {
         _eq(vault.points(bob), 3e18 + 7, "bob pts");
     }
 
-    function testFuzzDonateClaim(uint96 amt) public {
-        if (amt == 0 || amt > 1000e18) return;
+    /// forge-config: default.fuzz.runs = 1000
+    function testFuzzDonateClaim(uint96 seed) public {
+        // Generate a funded, nonzero donation for every input instead of
+        // silently returning for almost the entire uint96 input space.
+        uint256 amt = uint256(seed) % 1000e18 + 1;
         uint256 id = _donate(alice, amt);
         _eq(vault.points(alice), amt, "pts");
         _assertFunded();
