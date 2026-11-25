@@ -1,0 +1,22 @@
+{
+  "kind": "evm_project",
+  "token": {
+    "contract": "LaunchToken",
+    "name": "test",
+    "symbol": "testAdam",
+    "decimals": 18
+  },
+  "contracts": [
+    {
+      "contract": "DonationVault",
+      "constructorArgs": ["$token"]
+    }
+  ],
+  "pool": {
+    "pairedCurrency": "0x0000000000000000000000000000000000000000",
+    "fee": 12500,
+    "tickSpacing": 60,
+    "initialPrice": "79228162514264337593543950336"
+  },
+  "notes": "DonationVault binds LaunchToken at construction. Neither contract has an owner or admin, and no initialization calls are needed. Users approve then donate to create public gifts; the first wallet other than the donor to claim receives the full gift. Donor points include fractions and persist after payout. Points measure gross donations and can be farmed with a second wallet; they do not prove net giving. Direct token transfers to the vault create no gift or points and remain locked. The factory supplies the native ETH/testAdam pool, MerkleDistributor and initialization-only pool guard."
+}
